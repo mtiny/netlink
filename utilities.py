@@ -44,11 +44,17 @@ def nlmsghdr(length, cmd):
     '''
     return pack(nlmsghdr_fmt, NL_MSG_LEN + RT_MSG_LEN + RTA_LEN + length, rtmsgtypes.index (cmd), NLM_F_ROOT | NLM_F_REQUEST, 0, 0)
 
-def rtnlmsghdr(cmd):
+def rtnlmsghdr4(cmd):
     '''
     see rtnetlink.h nlmsghdr + rtgenmsg
     '''
     return pack(nlmsghdr_fmt+'B',calcsize(nlmsghdr_fmt + 'B'), rtmsgtypes.index (cmd), NLM_F_ROOT | NLM_F_REQUEST, 0, 0, AF_INET)
+
+def rtnlmsghdr6(cmd):
+    '''
+    see rtnetlink.h nlmsghdr + rtgenmsg
+    '''
+    return pack(nlmsghdr_fmt+'B',calcsize(nlmsghdr_fmt + 'B'), rtmsgtypes.index (cmd), NLM_F_ROOT | NLM_F_REQUEST, 0, 0, AF_INET6)
 
 def ifinfomsg(ifnr, flags):
     return pack(ifinfo_fmt, AF_UNSPEC, 0, 0, ifnr, flags, IFI_CHANGE)
@@ -141,9 +147,9 @@ def show_rta_link (rta, l):
     elif fieldname in ['IFLA_OPERSTATE', 'IFLA_LINKMODE', 'IFLA_CARRIER']:
         print (fieldname, l[0])
     elif fieldname in ['IFLA_STATS']:
-        print (fieldname, bytes_to_data('I'*23, stats_attr, l))
+        print (fieldname, bytes_to_data('23I', stats_attr, l))
     elif fieldname in ['IFLA_STATS64']:
-        print (fieldname, bytes_to_data('Q'*23, stats_attr, l))
+        print (fieldname, bytes_to_data('23Q', stats_attr, l))
     elif fieldname in ['IFLA_MAP']:
         print (fieldname,bytes_to_data('3Q8B', iflamap_attr, l))
     elif fieldname in ['IFLA_AF_SPEC']:
@@ -160,17 +166,17 @@ def show_rta_link (rta, l):
                 else:
                     fieldname = ifla_inet6_types[rta_type]
                 if fieldname in ['IFLA_INET6_CONF']:
-                    print (fieldname, bytes_to_data('I'*33, ipv6_devconf_attr, l))
+                    print (fieldname, bytes_to_data('33I', ipv6_devconf_attr, l))
                 elif fieldname in ['IFLA_INET6_TOKEN']:
                     print (fieldname, bytes_to_ipaddr(l))                    
                 elif fieldname in ['IFLA_INET6_CACHEINFO']:
-                    print (fieldname, bytes_to_data('I'*4, ipv6_cacheinfo_attr, l))                    
+                    print (fieldname, bytes_to_data('4I', ipv6_cacheinfo_attr, l))                    
                 elif fieldname in ['IFLA_INET6_ICMP6STATS']:
-                    print (fieldname, bytes_to_data('Q'*6, inet6_icmpstats_attr, l))                    
+                    print (fieldname, bytes_to_data('6Q', inet6_icmpstats_attr, l))                    
                 elif fieldname in ['IFLA_INET_CONF']:
-                        print (fieldname, bytes_to_data('I'*28, ipv4_devconf_attr, l))
+                        print (fieldname, bytes_to_data('28I', ipv4_devconf_attr, l))
                 elif fieldname in ['IFLA_INET6_STATS']:
-                        print (fieldname, bytes_to_data('Q'*36, ipstats_attr, l))
+                        print (fieldname, bytes_to_data('36Q', ipstats_attr, l))
                 elif fieldname in ['IFLA_INET6_FLAGS']:
                     val = unpack('I', l)[0]
                     bits = itob(val)
@@ -185,21 +191,21 @@ def show_rta_link (rta, l):
             l = p[1]
             fieldname = ifla_inet6_types[rta_type]
             if fieldname in ['IFLA_INET6_CONF']:
-                print (fieldname, bytes_to_data('I'*33, ipv6_devconf_attr, l))
+                print (fieldname, bytes_to_data('33I', ipv6_devconf_attr, l))
             elif fieldname in ['IFLA_INET6_TOKEN']:
                 print (fieldname, bytes_to_ipaddr(l))                    
             elif fieldname in ['IFLA_INET6_CACHEINFO']:
-                print (fieldname, bytes_to_data('I'*4, ipv6_cacheinfo_attr, l))                    
+                print (fieldname, bytes_to_data('4I', ipv6_cacheinfo_attr, l))                    
             elif fieldname in ['IFLA_INET6_ICMP6STATS']:
-                print (fieldname, bytes_to_data('Q'*6, inet6_icmpstats_attr, l))                    
+                print (fieldname, bytes_to_data('6Q', inet6_icmpstats_attr, l))                    
             elif fieldname in ['IFLA_INET_CONF']:
-                print (fieldname, bytes_to_data('I'*28, ipv4_devconf_attr, l))
+                print (fieldname, bytes_to_data('28I', ipv4_devconf_attr, l))
             elif fieldname in ['IFLA_INET6_FLAGS']:
                 val = unpack('I', l)[0]
                 bits = itob(val)
                 print (fieldname, [if6addrflags[i] for i in range(len(bits)) if bits[i] == 1])
             elif fieldname in ['IFLA_INET6_STATS']:
-                print (fieldname, bytes_to_data('Q'*36, ipstats_attr, l))
+                print (fieldname, bytes_to_data('36Q', ipstats_attr, l))
             else:
                 print (fieldname, l)
     else:        
@@ -234,6 +240,8 @@ def show_rta_route (rta, l):
         print (fieldname, bytes_to_ipaddr(l))
     elif fieldname in ['RTA_OIF', 'RTA_TABLE', 'RTA_PRIORITY', 'RTA_MP_ALGO']:
         print (fieldname, unpack('I', l)[0])
+    elif fieldname in ['RTA_CACHEINFO']:
+        print (fieldname, bytes_to_data('2Ii5I', rta_cacheinfo_attr, l))
     else:
         print (fieldname, l)
 

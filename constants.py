@@ -5,6 +5,7 @@ Created on 21 aug. 2015
 '''
 
 import struct
+
 '''
 from netlink.h
 '''
@@ -654,6 +655,21 @@ ipstats_attr = [
     'ipstats_mib_ect1pkts',
     'ipstats_mib_ect0pkts',
     'ipstats_mib_cepkts']
+
+'''
+from rtnetlink.h
+'''
+
+rta_cacheinfo_attr = [
+'rta_clntref',
+'rta_lastuse',
+'rta_expires',
+'rta_error',
+'rta_used',
+'rta_id',
+'rta_ts',
+'rta_tsage']
+
 
 nlmsghdr_fmt = 'IHHII'
 addr_fmt = '4Bi'
