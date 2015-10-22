@@ -144,14 +144,16 @@ def show_rta_link (rta, l):
     elif fieldname in ['IFLA_MTU', 'IFLA_TXQLEN', 'IFLA_GROUP', 'IFLA_PROMISCUITY', 'IFLA_TXQLEN', 
                        'IFLA_NUM_TX_QUEUES', 'IFLA_NUM_RX_QUEUES', 'IFLA_CARRIER_CHANGES']:
         print (fieldname, unpack('i', l)[0])
-    elif fieldname in ['IFLA_OPERSTATE', 'IFLA_LINKMODE', 'IFLA_CARRIER']:
+    elif fieldname in ['IFLA_OPERSTATE']:
+        print (fieldname, ifopertypes[l[0]])
+    elif fieldname in ['IFLA_LINKMODE', 'IFLA_CARRIER']:
         print (fieldname, l[0])
     elif fieldname in ['IFLA_STATS']:
         print (fieldname, bytes_to_data('23I', stats_attr, l))
     elif fieldname in ['IFLA_STATS64']:
         print (fieldname, bytes_to_data('23Q', stats_attr, l))
     elif fieldname in ['IFLA_MAP']:
-        print (fieldname,bytes_to_data('3Q8B', iflamap_attr, l))
+        print (fieldname,bytes_to_data('3Q4B', iflamap_attr, l)) #??????????
     elif fieldname in ['IFLA_AF_SPEC']:
         print (fieldname)
         for e in parse_ifrec(l):
@@ -166,7 +168,7 @@ def show_rta_link (rta, l):
                 else:
                     fieldname = ifla_inet6_types[rta_type]
                 if fieldname in ['IFLA_INET6_CONF']:
-                    print (fieldname, bytes_to_data('33I', ipv6_devconf_attr, l))
+                    print (fieldname, bytes_to_data('37i', ipv6_devconf_attr, l))
                 elif fieldname in ['IFLA_INET6_TOKEN']:
                     print (fieldname, bytes_to_ipaddr(l))                    
                 elif fieldname in ['IFLA_INET6_CACHEINFO']:
@@ -181,6 +183,8 @@ def show_rta_link (rta, l):
                     val = unpack('I', l)[0]
                     bits = itob(val)
                     print (fieldname, [if6addrflags[i] for i in range(len(bits)) if bits[i] == 1])
+                elif fieldname in ['IFLA_INET6_ADDR_GEN_MODE']:
+                    print (fieldname, l[0])
                 else:
                     print (fieldname, l)
     elif fieldname in ['IFLA_PROTINFO']:
@@ -191,7 +195,7 @@ def show_rta_link (rta, l):
             l = p[1]
             fieldname = ifla_inet6_types[rta_type]
             if fieldname in ['IFLA_INET6_CONF']:
-                print (fieldname, bytes_to_data('33I', ipv6_devconf_attr, l))
+                print (fieldname, bytes_to_data('37i', ipv6_devconf_attr, l))
             elif fieldname in ['IFLA_INET6_TOKEN']:
                 print (fieldname, bytes_to_ipaddr(l))                    
             elif fieldname in ['IFLA_INET6_CACHEINFO']:
@@ -206,6 +210,8 @@ def show_rta_link (rta, l):
                 print (fieldname, [if6addrflags[i] for i in range(len(bits)) if bits[i] == 1])
             elif fieldname in ['IFLA_INET6_STATS']:
                 print (fieldname, bytes_to_data('36Q', ipstats_attr, l))
+            elif fieldname in ['IFLA_INET6_ADDR_GEN_MODE']:
+                print (fieldname, l[0])
             else:
                 print (fieldname, l)
     else:        
@@ -241,7 +247,9 @@ def show_rta_route (rta, l):
     elif fieldname in ['RTA_OIF', 'RTA_TABLE', 'RTA_PRIORITY', 'RTA_MP_ALGO']:
         print (fieldname, unpack('I', l)[0])
     elif fieldname in ['RTA_CACHEINFO']:
-        print (fieldname, bytes_to_data('2Ii5I', rta_cacheinfo_attr, l))
+        print (fieldname, bytes_to_data('8i', rta_cacheinfo_attr, l))
+    elif fieldname in ['RTA_PREF']:
+        print (fieldname, l[0])
     else:
         print (fieldname, l)
 
@@ -252,7 +260,6 @@ def show_rta_qdiscs_nested (rta, l):
     rta_type = rta[1]
     fieldname = tcastatstypes[rta_type]
     if fieldname in ['TCA_STATS_BASIC']:
-        l = l[:-4] #strip pad byte
         print (fieldname, bytes_to_data('QI', tcabasic_attr, l))
     elif fieldname in ['TCA_STATS_QUEUE']:
         print (fieldname, bytes_to_data('5I', tcaqueue_attr, l))
@@ -300,7 +307,7 @@ def show_rta_qdiscs (rta, l):
         else:
             print (fieldname, len(l), l)
     elif fieldname in ['TCA_STATS']:
-        print (fieldname, bytes_to_data('Q8I', tcstats_attr, l))
+        print (fieldname, bytes_to_data('Q7I', tcstats_attr, l))
     elif fieldname in ['TCA_XSTATS', 'TCA_STATS_APP']:
         if len(l)==16:
             print (fieldname, bytes_to_data('4I', tcaxstats_attr, l))
@@ -369,6 +376,8 @@ def show_address_records (l):
 def show_route (rtmsg):
     for i in range(len(rtmsg_attr)):
         print ('{}:'.format(rtmsg_attr[i]), rtmsg[i])
+    rt_type = rtmsg[7]
+    print ('type: ', rtn_types[rt_type])
 
 def show_route_records (l):
     for msg in l:
@@ -384,6 +393,8 @@ def show_route_records (l):
 def show_neigh (ndmsg):
     for i in range(len(ndmsg_attr)):
         print ('{}:'.format(ndmsg_attr[i]), ndmsg[i])
+    flags = itob(ndmsg[4])
+    print ('state: ', [ndmsgflags[i] for i in range(len(flags)) if flags[i]==1])
 
 def show_neigh_records (l):
     for msg in l:

@@ -79,7 +79,7 @@ ifla_inet6_types = [    'IFLA_INET6_UNSPEC',
     'IFLA_INET6_CACHEINFO',
     'IFLA_INET6_ICMP6STATS',
     'IFLA_INET6_TOKEN',
-    'IFLA_INET6_MAX']
+    'IFLA_INET6_ADDR_GEN_MODE']
 
 '''
 from if_link.h
@@ -244,7 +244,9 @@ rtatypes = [
     'RTA_TABLE',
     'RTA_MARK',
     'RTA_MFC_STATS',
-    'RTA_MAX']
+    'RTA_VIA',
+    'RTA_NEWDST',
+    'RTA_PREF']
 
 '''
 from rtnetlink.h:
@@ -286,7 +288,8 @@ iflamap_attr = [
 'base_addr', 
 'irq',
 'dma',
-'port']
+'port',
+'pad']
 
 '''
 from if_addr.h
@@ -326,10 +329,10 @@ if6addrflags = ['IF_DUMMY']*4 + ['IF_RS_SENT',
 from neigbour.h
 '''
 ndacacheinfo_attr = [
-'ndm_confirmed',
-'ndm_used',
-'ndm_updated',
-'ndm_refcnt']
+'confirmed',
+'used',
+'updated',
+'refcnt']
 
 '''
 from pkt_sched.h:
@@ -500,29 +503,47 @@ rtmsg_attr = [
 from neighbor.h
 '''
 ndmsg_attr = [
-    'ndm_family',
+    'family',
     'pad1',
     'pad2',
-    'ndm_ifindex',
-    'ndm_state' ,
-    'ndm_flags',
-    'ndm_type']
+    'ifindex',
+    'state' ,
+    'flags',
+    'type']
+
+'''
+from rtnetlink.h
+'''
+rtn_types = [
+    'RTN_UNSPEC',
+    'RTN_UNICAST',
+    'RTN_LOCAL',
+    'RTN_BROADCAST',
+    'RTN_ANYCAST',
+    'RTN_MULTICAST',
+    'RTN_BLACKHOLE',
+    'RTN_UNREACHABLE',
+    'RTN_PROHIBIT',
+    'RTN_THROW',
+    'RTN_NAT',
+    'RTN_XRESOLVE']
 
 tcmsg_attr = [
-    'tcm_family',
+    'family',
     'pad1',
     'pad2',
-    'tcm_ifindex',
-    'tcm_handle',
-    'tcm_parent',
-    'tcm_info']
+    'ifindex',
+    'handle',
+    'parent',
+    'info']
  
 '''
 from ipv6.h
 '''
 ipv6_devconf_attr = [
+
     'forwarding',
-    'hop_limit',
+    'hoplimit',
     'mtu6',
     'accept_ra',
     'accept_redirects',
@@ -531,21 +552,21 @@ ipv6_devconf_attr = [
     'rtr_solicits',
     'rtr_solicit_interval',
     'rtr_solicit_delay',
-    'force_mld_version',
+    'use_tempaddr',
     'temp_valid_lft',
     'temp_prefered_lft',
     'regen_max_retry',
     'max_desync_factor',
     'max_addresses',
-    'use_tempaddr',
+    'force_mld_version',
     'accept_ra_defrtr',
     'accept_ra_pinfo',
     'accept_ra_rtr_pref',
     'rtr_probe_interval',
     'accept_ra_rt_info_max_plen',
     'proxy_ndp',
-    'accept_source_route',
     'optimistic_dad',
+    'accept_source_route',
     'mc_forwarding',
     'disable_ipv6',
     'accept_dad',
@@ -553,7 +574,12 @@ ipv6_devconf_attr = [
     'ndisc_notify',
     'mldv1_unsolicited_report_interval',
     'mldv2_unsolicited_report_interval',
-    'suppress_frag_ndisc'
+    'suppress_frag_ndisc',
+    'accept_ra_from_local',
+    'use_optimistic',
+    'accept_ra_mtu',
+    'stable_secret'
+
 ]
 
 '''
@@ -561,12 +587,12 @@ from snmp.h
 '''
 
 inet6_icmpstats_attr = [
-    'icmp6_mib_num',
-    'icmp6_mib_inmsgs',
-    'icmp6_mib_inerrors',
-    'icmp6_mib_outmsgs',
-    'icmp6_mib_outerrors',
-    'icmp6_mib_csumerrors'
+    'num',
+    'inmsgs',
+    'inerrors',
+    'outmsgs',
+    'outerrors',
+    'csumerrors'
     ]
 
 '''
@@ -584,34 +610,34 @@ ipv6_cacheinfo_attr = [
 from if_link.h, include/uapi/linux/ip.h
 '''
 
-ipv4_devconf_attr = ['ipv4_devconf_forwarding',
-    'ipv4_devconf_mc_forwarding',
-    'ipv4_devconf_proxy_arp',
-    'ipv4_devconf_accept_redirects',
-    'ipv4_devconf_secure_redirects',
-    'ipv4_devconf_send_redirects',
-    'ipv4_devconf_shared_media',
-    'ipv4_devconf_rp_filter',
-    'ipv4_devconf_accept_source_route',
-    'ipv4_devconf_bootp_relay',
-    'ipv4_devconf_log_martians',
-    'ipv4_devconf_tag',
-    'ipv4_devconf_arpfilter',
-    'ipv4_devconf_medium_id',
-    'ipv4_devconf_noxfrm',
-    'ipv4_devconf_nopolicy',
-    'ipv4_devconf_force_igmp_version',
-    'ipv4_devconf_arp_announce',
-    'ipv4_devconf_arp_ignore',
-    'ipv4_devconf_promote_secondaries',
-    'ipv4_devconf_arp_accept',
-    'ipv4_devconf_arp_notify',
-    'ipv4_devconf_accept_local',
-    'ipv4_devconf_src_vmark',
-    'ipv4_devconf_proxy_arp_pvlan',
-    'ipv4_devconf_route_localnet',
-    'ipv4_devconf_igmpv2_unsolicited_report_interval',
-    'ipv4_devconf_igmpv3_unsolicited_report_interval'
+ipv4_devconf_attr = ['forwarding',
+    'mc_forwarding',
+    'proxy_arp',
+    'accept_redirects',
+    'secure_redirects',
+    'send_redirects',
+    'shared_media',
+    'rp_filter',
+    'accept_source_route',
+    'bootp_relay',
+    'log_martians',
+    'tag',
+    'arpfilter',
+    'medium_id',
+    'noxfrm',
+    'nopolicy',
+    'force_igmp_version',
+    'arp_announce',
+    'arp_ignore',
+    'promote_secondaries',
+    'arp_accept',
+    'arp_notify',
+    'accept_local',
+    'src_vmark',
+    'proxy_arp_pvlan',
+    'route_localnet',
+    'igmpv2_unsolicited_report_interval',
+    'igmpv3_unsolicited_report_interval'
 ]
 
 '''
@@ -619,57 +645,82 @@ from snmp.h
 '''
 
 ipstats_attr = [
-    'ipstats_mib_num',
-    'ipstats_mib_inpkts',
-    'ipstats_mib_inoctets',
-    'ipstats_mib_indelivers',
-    'ipstats_mib_outforwdatagrams',
-    'ipstats_mib_outpkts',
-    'ipstats_mib_outoctets',
-    'ipstats_mib_inhdrerrors',
-    'ipstats_mib_intoobigerrors',
-    'ipstats_mib_innoroutes',
-    'ipstats_mib_inaddrerrors',
-    'ipstats_mib_inunknownprotos',
-    'ipstats_mib_intruncatedpkts',
-    'ipstats_mib_indiscards',
-    'ipstats_mib_outdiscards',
-    'ipstats_mib_outnoroutes',
-    'ipstats_mib_reasmtimeout',
-    'ipstats_mib_reasmreqds',
-    'ipstats_mib_reasmoks',
-    'ipstats_mib_reasmfails',
-    'ipstats_mib_fragoks',
-    'ipstats_mib_fragfails',
-    'ipstats_mib_fragcreates',
-    'ipstats_mib_inmcastpkts',
-    'ipstats_mib_outmcastpkts',
-    'ipstats_mib_inbcastpkts',
-    'ipstats_mib_outbcastpkts',
-    'ipstats_mib_inmcastoctets',
-    'ipstats_mib_outmcastoctets',
-    'ipstats_mib_inbcastoctets',
-    'ipstats_mib_outbcastoctets',
-    'ipstats_mib_csumerrors',
-    'ipstats_mib_noectpkts',
-    'ipstats_mib_ect1pkts',
-    'ipstats_mib_ect0pkts',
-    'ipstats_mib_cepkts']
+    'num',
+    'inpkts',
+    'inoctets',
+    'indelivers',
+    'outforwdatagrams',
+    'outpkts',
+    'outoctets',
+    'inhdrerrors',
+    'intoobigerrors',
+    'innoroutes',
+    'inaddrerrors',
+    'inunknownprotos',
+    'intruncatedpkts',
+    'indiscards',
+    'outdiscards',
+    'outnoroutes',
+    'reasmtimeout',
+    'reasmreqds',
+    'reasmoks',
+    'reasmfails',
+    'fragoks',
+    'fragfails',
+    'fragcreates',
+    'inmcastpkts',
+    'outmcastpkts',
+    'inbcastpkts',
+    'outbcastpkts',
+    'inmcastoctets',
+    'outmcastoctets',
+    'inbcastoctets',
+    'outbcastoctets',
+    'csumerrors',
+    'noectpkts',
+    'ect1pkts',
+    'ect0pkts',
+    'cepkts']
 
 '''
 from rtnetlink.h
 '''
 
 rta_cacheinfo_attr = [
-'rta_clntref',
-'rta_lastuse',
-'rta_expires',
-'rta_error',
-'rta_used',
-'rta_id',
-'rta_ts',
-'rta_tsage']
+'clntref',
+'lastuse',
+'expires',
+'error',
+'used',
+'id',
+'ts',
+'tsage']
 
+'''
+from if.h
+'''
+ifopertypes = [
+    'IF_OPER_UNKNOWN',
+    'IF_OPER_NOTPRESENT',
+    'IF_OPER_DOWN',
+    'IF_OPER_LOWERLAYERDOWN',
+    'IF_OPER_TESTING',
+    'IF_OPER_DORMANT',
+    'IF_OPER_UP']
+
+'''
+from neighbor.h
+'''
+
+ndmsgflags = [
+'NUD_INCOMPLETE',
+'NUD_REACHABLE',
+'NUD_STALE',
+'NUD_DELAY',
+'NUD_PROBE',
+'NUD_FAILED',
+'NUD_NOARP',
+'NUD_PERMANENT']
 
 nlmsghdr_fmt = 'IHHII'
 addr_fmt = '4Bi'
